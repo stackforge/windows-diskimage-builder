@@ -21,9 +21,7 @@
 #.\diskimagebuilder.ps1 -SourceFile <path>\install.wim -VHDFile <path>\VHDFilename -VHDSize <size of vhd> -VirtIOPath <path>\virtio.iso
 
 # All Commands Usage
-#.\diskimagebuilder.ps1  -SourceFile <path>\install.wim -VHDFile <path>\VHDFilename -VHDSize <size of vhd> -feature <featuretoenable> -UnattendPath <path>\unattend.xml -DriversPath <path to drivers folder> 
-
-
+#.\diskimagebuilder.ps1  -SourceFile <path>\install.wim -VHDFile <path>\VHDFilename -VHDSize <size of vhd> -feature <featuretoenable> -UnattendPath <path>\unattend.xml -DriversPath <path to drivers folder> -baudrate <value> -OutputFormat vhd/qcow2 (Default will be vhd)
 
 Param(
 [Parameter(mandatory=$True,HelpMessage="Name and path of Sourcefile (WIM).")]
@@ -55,9 +53,17 @@ Param(
 [ValidateNotNullOrEmpty()]
 [String]$CloudbaseInitMsiUrl,
 
+[parameter(HelpMessage="Serial port baudrate")]
+[ValidateNotNullOrEmpty()]
+[String]$serialbaudrate,
+
 [parameter(HelpMessage="Add Drivers Folder Path.")]
 [ValidateNotNullOrEmpty()]
 [String]$DriversPath,
+
+[parameter(HelpMessage="Output format vhd\qcow2.")]
+[ValidateNotNullOrEmpty()]
+[String]$OutputFormat,
 
 [parameter(HelpMessage="Add Drivers From Virtio ISO.")]
 [ValidateNotNullOrEmpty()]
@@ -82,6 +88,25 @@ if(!$CloudbaseInitMsiUrl){
 
     $CloudbaseInitMsiUrl = "http://www.cloudbase.it/downloads/CloudbaseInitSetup_Beta.msi"  
 	
+}	
+
+if(!$serialbaudrate){
+
+    $serialbaudrate = "9600"
+	
+}	
+if($OutputFormat){
+    $arrFormats = @("vhd", "qcow2")
+	$Found = 0
+	for ($i=0; $i -lt $arrFormats.length; $i++) {
+	    if($arrFormats[$i] -eq $OutputFormat){
+		    $Found = 1
+		}
+	}
+	if(!$Found){
+	   Write-W2VInfo "Not a valid output format"
+	   exit
+	}
 }	
 
 $VHDVolume = 'v'
@@ -259,8 +284,19 @@ function AddCloudbaseinit(){
 function SerialPort(){
     $VHDVolume = $VHDVolume + ":"
 	Write-W2VInfo "Adding Serial Port"
-    bcdedit /store $VHDVolume\boot\BCD /dbgsettings serial debugport:1 baudrate:9600 
+    bcdedit /store $VHDVolume\boot\BCD /dbgsettings serial debugport:1 baudrate:$serialbaudrate
 
+}
+
+function convertoutputtoqcow2(){
+    try{
+	   Write-W2VInfo "Converting to qcow2"
+       qemu-img.exe convert -f vpc -O qcow2  $VHDFile $VHDFile.Replace("vhd","qcow2")
+	   Remove-Item $VHDFile
+	}catch{
+	   Write-W2VInfo "qemu is not installed or its path is not set to system path. So ouput will be in vhd format"
+	   exit
+	}
 }
 
 
@@ -331,7 +367,12 @@ SerialPort
 #select and detach the vdisk created by the disk.
 remove-vhd($VHDFile)			
 
-Write-W2VInfo "================= Please check logs directory for Image creation log files. ====================" 
+if($OutputFormat){
+   if($OutputFormat -eq "qcow2"){
+      convertoutputtoqcow2
+   }
+   
+}
 Write-W2VInfo "================= Completed Image Creation and ready. ======================="
 
 

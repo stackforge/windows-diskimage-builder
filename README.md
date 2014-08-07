@@ -10,6 +10,8 @@ Runs on Windows 8, 8.1 and 2012 R2
 
 Requires Powershell 3.0 or above and wim file from ISO Source folder. ISO is not required. Only Wim file is enough to generate and apply wim to vhd.
 
+Please download and install qemu binary for getting qcow2 format of image from the link --> http://qemu.weilnetz.de/w64/ Also set it to system path.
+
 Basic Usage
 .\diskimagebuilder.ps1 -SourceFile <path>\install.wim -VHDFile <path>\VHDFilename -VHDSize <size of vhd>
 
@@ -26,4 +28,4 @@ Add VirtIO Drivers
 .\diskimagebuilder.ps1 -SourceFile <path>\install.wim -VHDFile <path>\VHDFilename -VHDSize <size of vhd> -VirtIOPath <path>\virtio.iso
 
 All Commands Usage
-.\diskimagebuilder.ps1  -SourceFile <path>\install.wim -VHDFile <path>\VHDFilename -VHDSize <size of vhd> -feature <featuretoenable> -UnattendPath <path>\unattend.xml -DriversPath <path to drivers folder> -CloudbaseInitMsiUrl < your cloudbaseinit msi url>
+.\diskimagebuilder.ps1  -SourceFile <path>\install.wim -VHDFile <path>\VHDFilename -VHDSize <size of vhd> -feature <featuretoenable> -UnattendPath <path>\unattend.xml -DriversPath <path to drivers folder> -CloudbaseInitMsiUrl < your cloudbaseinit msi url> -baudrate <value> -OutputFormat vhd/qcow2 (Default will be vhd)
