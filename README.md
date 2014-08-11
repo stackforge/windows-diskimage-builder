@@ -27,5 +27,8 @@ Add Unattend answer file
 Add VirtIO Drivers
 .\diskimagebuilder.ps1 -SourceFile <path>\install.wim -VHDFile <path>\VHDFilename -VHDSize <size of vhd> -VirtIOPath <path>\virtio.iso
 
+Add UEFI Disk format support
+.\diskimagebuilder.ps1 -SourceFile <path>\install.wim -VHDFile <path>\VHDFilename -VHDSize <size of vhd> -disklayout UEFI (if not specified Default will be bios)
+
 All Commands Usage
-.\diskimagebuilder.ps1  -SourceFile <path>\install.wim -VHDFile <path>\VHDFilename -VHDSize <size of vhd> -feature <featuretoenable> -UnattendPath <path>\unattend.xml -DriversPath <path to drivers folder> -CloudbaseInitMsiUrl < your cloudbaseinit msi url> -baudrate <value> -OutputFormat vhd/qcow2 (Default will be vhd)
+.\diskimagebuilder.ps1  -SourceFile <path>\install.wim -VHDFile <path>\VHDFilename -VHDSize <size of vhd> -feature <featuretoenable> -UnattendPath <path>\unattend.xml -DriversPath <path to drivers folder> -CloudbaseInitMsiUrl < your cloudbaseinit msi url> -baudrate <value> -OutputFormat vhd/qcow2 (if not specified Default will be vhd) -disklayout UEFI (if not specified Default will be bios)

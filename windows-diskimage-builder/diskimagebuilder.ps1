@@ -21,7 +21,9 @@
 #.\diskimagebuilder.ps1 -SourceFile <path>\install.wim -VHDFile <path>\VHDFilename -VHDSize <size of vhd> -VirtIOPath <path>\virtio.iso
 
 # All Commands Usage
-#.\diskimagebuilder.ps1  -SourceFile <path>\install.wim -VHDFile <path>\VHDFilename -VHDSize <size of vhd> -feature <featuretoenable> -UnattendPath <path>\unattend.xml -DriversPath <path to drivers folder> -baudrate <value> -OutputFormat vhd/qcow2 (Default will be vhd)
+#.\diskimagebuilder.ps1  -SourceFile <path>\install.wim -VHDFile <path>\VHDFilename -VHDSize <size of vhd> -feature <featuretoenable> -UnattendPath <path>\unattend.xml -DriversPath <path to drivers folder> 
+
+# Please download and install qemu binary for getting qcow2 format of image from the link --> http://qemu.weilnetz.de/w64/ 
 
 Param(
 [Parameter(mandatory=$True,HelpMessage="Name and path of Sourcefile (WIM).")]
@@ -64,6 +66,10 @@ Param(
 [parameter(HelpMessage="Output format vhd\qcow2.")]
 [ValidateNotNullOrEmpty()]
 [String]$OutputFormat,
+
+[parameter(HelpMessage="UEFI Disk layout")]
+[ValidateNotNullOrEmpty()]
+[String]$disklayout,
 
 [parameter(HelpMessage="Add Drivers From Virtio ISO.")]
 [ValidateNotNullOrEmpty()]
@@ -202,7 +208,12 @@ function CreateThrwDiskpart(){
    $GB = [System.UInt64] $VHDSize*1024
    $path =  $vhdFile
    $script = "create VDISK FILE=`"$path`" maximum=`"$GB`" type=expandable `r`nselect VDISK FILE=`"$path`"`r`nattach VDISK`r`ncreate partition primary`r`nassign letter=`"$VHDVolume`"`r`nformat fs=ntfs quick label=vhd`r`nactive`r`nexit"   
-   $script | DISKPART 
+   $gptscript = "create VDISK FILE=`"$path`" maximum=`"$GB`" type=expandable `r`nselect VDISK FILE=`"$path`"`r`nattach VDISK`r`convert gpt`r`ncreate partition primary`r`nassign letter=`"$VHDVolume`"`r`nformat fs=ntfs quick label=vhd`r`nexit"   
+   if($disklayout){
+       $gptscript | DISKPART
+   }else{
+       $script | DISKPART 
+   }   
    $VHDVolume = [string]$VHDVolume + ":"     
    Write-W2VInfo " $VHDVolume is the drive letter"    
    dism.exe /apply-Image /ImageFile:$SourceFile /index:$Index /ApplyDir:$VHDVolume\              
@@ -373,6 +384,7 @@ if($OutputFormat){
    }
    
 }
+Write-W2VInfo "================= Please check logs directory for Image creation log files. ====================" 
 Write-W2VInfo "================= Completed Image Creation and ready. ======================="
 
 
