@@ -13,6 +13,7 @@
 # under the License.
 
 
+
 # Creates a Image file, Includes cloudbase-init package by default.
 # User can create image by adding custom drivers, VirIO Drivers by providing suitable ISO or inf files. Enable Roles like Hyperv , TFTP etc., Use below formats to run script.
 
@@ -343,22 +344,23 @@ foreach($p in $testpaths){
 
 
 
-#try {
-#           Createvhd  | Out-File  
-#			PscreatePartition		
+try {
+    if($disklayout){
+	    $Errorvalue = 1 
+	}else{
+        Createvhd  
+	    PscreatePartition		
+	}
 			
-#} catch{
-#            Write-W2VInfo "Could not run through hyperv module will use diskpart..."
-#			$Errorvalue = 1
+} catch{
+            Write-W2VInfo "Could not run through hyperv module will use diskpart..."
+			$Errorvalue = 1
 			
-#}
+}
 
-#if($Errorvalue){
-
-   CreateThrwDiskpart   
-   
-   
-#}
+if($Errorvalue){
+   CreateThrwDiskpart      
+}
 
 
 CreateBootfiles

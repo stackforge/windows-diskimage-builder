@@ -6,7 +6,7 @@ Baremetal Servers. This is made possible by injecting user provided drivers usin
 Creates a Image file, Includes cloudbase-init package by default.
 User can create image by adding custom drivers, VirIO Drivers by providing suitable ISO or inf files. Enable Roles like Hyperv , TFTP etc., Use below formats to run script.
 
-Runs on Windows 8, 8.1 and 2012 R2
+Runs on Windows 7,8, 8.1 and 2012 R2 ( To run this tool on Windows 7 it needs WAIK to be installed inorder to use dism /apply-image )
 
 Requires Powershell 3.0 or above and wim file from ISO Source folder. ISO is not required. Only Wim file is enough to generate and apply wim to vhd.
 
